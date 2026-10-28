@@ -1,0 +1,2465 @@
+{
+  "name": "Valid8 - Bot Router",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message",
+          "callback_query"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        0,
+        16
+      ],
+      "id": "eaa3827c-ac4f-48cd-809c-72c367253b02",
+      "name": "Telegram Trigger",
+      "webhookId": "4575b6d4-15e7-43d8-b292-888330e15ee5",
+      "credentials": {
+        "telegramApi": {
+          "id": "a1mtXsyEnkoT7FdZ",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.callback_query }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "object",
+                      "operation": "exists",
+                      "singleValue": true
+                    },
+                    "id": "db528d34-0073-4672-90d9-3f0235d420aa"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Button"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "7eaa0f04-d045-403a-8915-d9314f63671d",
+                    "leftValue": "={{ $json.message?.location }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "object",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Location"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "3f739c32-d9db-40f2-a338-f95778317d95",
+                    "leftValue": "={{ $json.message?.text }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Text"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        224,
+        0
+      ],
+      "id": "2c58c93e-3c67-4037-a52d-2a72ca36f28d",
+      "name": "Kya Aaya?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "41546fcd-b2ad-47db-8a67-69e9a7402281",
+              "leftValue": "={{ $json.message.text }}",
+              "rightValue": "Suspicious call",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        384,
+        128
+      ],
+      "id": "d892c517-d488-4e36-ab8f-d38259edc0dd",
+      "name": "Alarm?"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.message.chat.id }}",
+        "text": "=Hi {{ $json.message.from.first_name }}! Kisi ne aapke bacche ke baare mein darane wali call ki ho, toh neeche ka button dabao. (ID: {{ $json.message.chat.id }})",
+        "replyMarkup": "replyKeyboard",
+        "replyKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "🚨 Suspicious call",
+                    "additionalFields": {}
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "replyKeyboardOptions": {
+          "resize_keyboard": true
+        },
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        864,
+        432
+      ],
+      "id": "0d62c3f1-95b4-438c-a249-2bf9f8bbe0a3",
+      "name": "Menu",
+      "webhookId": "198aad05-cbae-477f-936a-36b93eb021bf",
+      "credentials": {
+        "telegramApi": {
+          "id": "a1mtXsyEnkoT7FdZ",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "msiDisjVc3R2qgFY",
+          "mode": "list",
+          "cachedResultName": "members",
+          "cachedResultUrl": "/projects/EXnAmFVDRxl4nNTP/datatables/msiDisjVc3R2qgFY"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "chatId",
+              "keyValue": "={{ String($json.message.chat.id) }}"
+            },
+            {
+              "keyName": "role",
+              "keyValue": "parent"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        832,
+        32
+      ],
+      "id": "3ad2150d-19e3-4623-a4bb-f0f689b76a35",
+      "name": "Find Parent"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "msiDisjVc3R2qgFY",
+          "mode": "list",
+          "cachedResultName": "members",
+          "cachedResultUrl": "/projects/EXnAmFVDRxl4nNTP/datatables/msiDisjVc3R2qgFY"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "familyId",
+              "keyValue": "={{ $json.familyId }}"
+            },
+            {
+              "keyName": "role",
+              "keyValue": "child"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1056,
+        32
+      ],
+      "id": "4687e283-3eec-4e41-9ee4-508a63ab6e3e",
+      "name": "Find Child"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "=Valid8: {{ $('Find Parent').item.json.name }} ko aapke baare mein ek darane wali call aayi hai. Kya aap safe ho? Neeche button dabao.",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "✅ I'm safe",
+                    "additionalFields": {
+                      "callback_data": "safe"
+                    }
+                  },
+                  {
+                    "text": "🆘 Help",
+                    "additionalFields": {
+                      "callback_data": "help"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1280,
+        32
+      ],
+      "id": "bffc9900-aad4-4f13-bf4a-85df61b2d9d5",
+      "name": "Ask Child",
+      "webhookId": "29deb5d6-0610-498a-9826-ad464c45ce7a",
+      "credentials": {
+        "telegramApi": {
+          "id": "a1mtXsyEnkoT7FdZ",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "callback",
+        "queryId": "={{ $json.callback_query.id }}",
+        "additionalFields": {
+          "text": "Jawab bhej diya gaya ✅"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        416,
+        -304
+      ],
+      "id": "88ad0552-e07b-4554-806f-21f7741c336d",
+      "name": "Answer Button",
+      "webhookId": "c402b0ad-f322-4662-946b-87c40eb8c1c3",
+      "credentials": {
+        "telegramApi": {
+          "id": "a1mtXsyEnkoT7FdZ",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "msiDisjVc3R2qgFY",
+          "mode": "list",
+          "cachedResultName": "members",
+          "cachedResultUrl": "/projects/EXnAmFVDRxl4nNTP/datatables/msiDisjVc3R2qgFY"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "chatId",
+              "keyValue": "={{ String($json.callback_query.from.id) }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        560,
+        -128
+      ],
+      "id": "859df2d6-53db-4148-94e8-a81cd4d4d374",
+      "name": "Find Responder"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "msiDisjVc3R2qgFY",
+          "mode": "list",
+          "cachedResultName": "members",
+          "cachedResultUrl": "/projects/EXnAmFVDRxl4nNTP/datatables/msiDisjVc3R2qgFY"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "familyId",
+              "keyValue": "={{ $json.familyId }}"
+            },
+            {
+              "keyName": "role",
+              "keyValue": "parent"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        720,
+        -160
+      ],
+      "id": "96b0e283-0d03-43da-aa09-43ced2eb5562",
+      "name": "Family Parent"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "b658b6d2-92d1-4b71-b227-02a7be368b65",
+              "leftValue": "={{ $('Telegram Trigger').first().json.callback_query.data }}",
+              "rightValue": "safe",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1648,
+        -144
+      ],
+      "id": "8e57fc4b-693e-4ad8-9ae1-d5e8132ddee8",
+      "name": "Safe?"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Family Parent').item.json.chatId }}",
+        "text": "=🆘 VALID8 ALERT: {{ $('Find Responder').item.json.name }} ne HELP dabaya hai! Turant 112 pe call karo. {{ $('Find Responder').item.json.name }} ko apne phone se seedha call karo.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1920,
+        -160
+      ],
+      "id": "d9af5214-87a1-4a2a-b7b5-5e63c0894d9d",
+      "name": "Tell Parent Help",
+      "webhookId": "29260f27-7f1c-4503-be46-a093c5f24e03",
+      "credentials": {
+        "telegramApi": {
+          "id": "a1mtXsyEnkoT7FdZ",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Find Responder').item.json.chatId }}",
+        "text": "Shukriya! Confirm karne ke liye apna 4-digit Safe PIN type karke bhejo.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1968,
+        -400
+      ],
+      "id": "75549092-8d24-424c-876c-0ac6308b1fb4",
+      "name": "Ask PIN",
+      "webhookId": "b7321317-21db-4e8e-8a70-1c13a82ce3b4",
+      "credentials": {
+        "telegramApi": {
+          "id": "a1mtXsyEnkoT7FdZ",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "74d2b44e-ecd2-47c9-b422-bfd1f08273a0",
+              "leftValue": "={{ $json.message.text }}",
+              "rightValue": "^\\d{4}$",
+              "operator": {
+                "type": "string",
+                "operation": "regex"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        320,
+        480
+      ],
+      "id": "58fc524a-3a1c-49a4-90f5-cbdeeda3a9b7",
+      "name": "Is PIN?"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "msiDisjVc3R2qgFY",
+          "mode": "list",
+          "cachedResultName": "members",
+          "cachedResultUrl": "/projects/EXnAmFVDRxl4nNTP/datatables/msiDisjVc3R2qgFY"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "chatId",
+              "keyValue": "={{ String($('Telegram Trigger').first().json.message.chat.id) }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        880,
+        208
+      ],
+      "id": "5136a32f-81c3-4cfc-8c6a-f9c5a9e3ca35",
+      "name": "PIN Sender"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "msiDisjVc3R2qgFY",
+          "mode": "list",
+          "cachedResultName": "members",
+          "cachedResultUrl": "/projects/EXnAmFVDRxl4nNTP/datatables/msiDisjVc3R2qgFY"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "familyId",
+              "keyValue": "={{ $json.familyId }}"
+            },
+            {
+              "keyName": "role",
+              "keyValue": "parent"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1088,
+        208
+      ],
+      "id": "7926fd28-1f39-435b-a7cf-e84c289b244b",
+      "name": "PIN Parent"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "9d090b3b-952b-4490-904f-6b5d14fe424b",
+              "leftValue": "={{ $('PIN Sender').first().json.pin }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "000e72e4-8c95-4a9e-a198-56f683793247",
+              "leftValue": "={{ $('Telegram Trigger').first().json.message.text.trim() }}",
+              "rightValue": "={{ $('PIN Sender').first().json.pin }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1840,
+        192
+      ],
+      "id": "8a3992ef-94b6-4306-8d8c-0368142d72ee",
+      "name": "PIN Correct?"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('PIN Parent').first().json.chatId }}",
+        "text": "=✅ VALID8: {{ $('PIN Sender').first().json.name }} ne apne Safe PIN ke saath confirm kiya hai ki wo SAFE hai. PAISE MAT BHEJO. Ye call scam hone ka HIGH RISK hai. Caller ka number note kar lo, report karne mein kaam aayega.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2352,
+        176
+      ],
+      "id": "5fd48478-4875-437d-ba17-ace523900b1a",
+      "name": "Tell Parent Verified",
+      "webhookId": "4a200b28-0d33-4272-aaae-e3c1b9de3b4f",
+      "credentials": {
+        "telegramApi": {
+          "id": "a1mtXsyEnkoT7FdZ",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('PIN Parent').first().json.chatId }}",
+        "text": "=⚠️ VALID8 WARNING: {{ $('PIN Sender').first().json.name }} ke phone se GALAT PIN aaya hai (attempt {{ Number($('Get Case').first().json.attempts || 0) + 1 }}/3). {{ Number($('Get Case').first().json.attempts || 0) + 1 >= 3 ? 'PIN 3 baar galat hua, ab ye check LOCK hai.' : 'Ho sakta hai phone kisi aur ke paas ho.' }} PAISE MAT BHEJO. Turant 112 pe call karo.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2288,
+        448
+      ],
+      "id": "2874e8be-ccce-4b7b-b6aa-053a2a2e970b",
+      "name": "Tell Parent PIN",
+      "webhookId": "63882d0d-6c15-4866-8976-ba9373ae09cb",
+      "credentials": {
+        "telegramApi": {
+          "id": "a1mtXsyEnkoT7FdZ",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "dataTableId": {
+          "__rl": true,
+          "value": "12Az214sZTV1QYv0",
+          "mode": "list",
+          "cachedResultName": "cases",
+          "cachedResultUrl": "/projects/EXnAmFVDRxl4nNTP/datatables/12Az214sZTV1QYv0"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "familyId",
+              "keyValue": "={{ $('Find Parent').item.json.familyId }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "familyId": "={{ $('Find Parent').item.json.familyId }}",
+            "startedAt": "={{ $now.toISO() }}",
+            "attempts": "={{ 0 }}",
+            "status": "open",
+            "replied": "no"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "familyId",
+              "displayName": "familyId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "startedAt",
+              "displayName": "startedAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "attempts",
+              "displayName": "attempts",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "replied",
+              "displayName": "replied",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1504,
+        32
+      ],
+      "id": "800a7bb5-f474-4fad-8132-f7afb1ab6a1f",
+      "name": "Open Case"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "12Az214sZTV1QYv0",
+          "mode": "list",
+          "cachedResultName": "cases",
+          "cachedResultUrl": "/projects/EXnAmFVDRxl4nNTP/datatables/12Az214sZTV1QYv0"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "familyId",
+              "keyValue": "={{ $('PIN Sender').first().json.familyId }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1312,
+        208
+      ],
+      "id": "84c394f8-3e8a-4ca2-a3a8-3f6807937d71",
+      "name": "Get Case",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "5c239ed3-a681-47fe-a9f4-577c2dc004ab",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "open",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1536,
+        208
+      ],
+      "id": "5e688161-25fe-42e8-bada-708590b594aa",
+      "name": "Case Open?"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "12Az214sZTV1QYv0",
+          "mode": "list",
+          "cachedResultName": "cases",
+          "cachedResultUrl": "/projects/EXnAmFVDRxl4nNTP/datatables/12Az214sZTV1QYv0"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "familyId",
+              "keyValue": "={{ $('PIN Sender').first().json.familyId }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "safe"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "familyId",
+              "displayName": "familyId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "startedAt",
+              "displayName": "startedAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "attempts",
+              "displayName": "attempts",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2560,
+        176
+      ],
+      "id": "32ad24ae-fd09-4df0-b282-9a04a65d682f",
+      "name": "Close Safe"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "12Az214sZTV1QYv0",
+          "mode": "list",
+          "cachedResultName": "cases",
+          "cachedResultUrl": "/projects/EXnAmFVDRxl4nNTP/datatables/12Az214sZTV1QYv0"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "familyId",
+              "keyValue": "={{ $('Family Parent').first().json.familyId }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "help"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "familyId",
+              "displayName": "familyId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "startedAt",
+              "displayName": "startedAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "attempts",
+              "displayName": "attempts",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2176,
+        -160
+      ],
+      "id": "e96bd017-b719-4df6-b18c-3b2263fd0ee8",
+      "name": "Close Help"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "12Az214sZTV1QYv0",
+          "mode": "list",
+          "cachedResultName": "cases",
+          "cachedResultUrl": "/projects/EXnAmFVDRxl4nNTP/datatables/12Az214sZTV1QYv0"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "familyId",
+              "keyValue": "={{ $('PIN Sender').first().json.familyId }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "attempts": "={{ Number($('Get Case').first().json.attempts || 0) + 1 }}",
+            "status": "={{ Number($('Get Case').first().json.attempts || 0) + 1 >= 3 ? 'locked' : 'open' }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "familyId",
+              "displayName": "familyId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "startedAt",
+              "displayName": "startedAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "attempts",
+              "displayName": "attempts",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2064,
+        320
+      ],
+      "id": "5b538682-3950-4551-8bb4-82f90e896c6a",
+      "name": "Count Wrong PIN"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "12Az214sZTV1QYv0",
+          "mode": "list",
+          "cachedResultName": "cases",
+          "cachedResultUrl": "/projects/EXnAmFVDRxl4nNTP/datatables/12Az214sZTV1QYv0"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "familyId",
+              "keyValue": "={{ $('Find Responder').first().json.familyId }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "replied": "yes"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "familyId",
+              "displayName": "familyId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "startedAt",
+              "displayName": "startedAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "attempts",
+              "displayName": "attempts",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "replied",
+              "displayName": "replied",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1104,
+        -160
+      ],
+      "id": "d9123f1e-d88f-4193-9126-68646867af3d",
+      "name": "Mark Replied"
+    },
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1728,
+        32
+      ],
+      "id": "59a9eda0-4918-4913-95c2-a6ede3ded41a",
+      "name": "After Time Interval",
+      "webhookId": "eb755851-a70f-4788-ac6e-1746529d4a0f"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "12Az214sZTV1QYv0",
+          "mode": "list",
+          "cachedResultName": "cases",
+          "cachedResultUrl": "/projects/EXnAmFVDRxl4nNTP/datatables/12Az214sZTV1QYv0"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "familyId",
+              "keyValue": "={{ $('Find Parent').first().json.familyId }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1952,
+        32
+      ],
+      "id": "cc8f16a4-dea4-453d-9398-f051e82e1513",
+      "name": "Check Reply",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "7cb37abb-1cbe-49cd-ae40-9d383cfb25f1",
+              "leftValue": "={{ $json.replied }}",
+              "rightValue": "no",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2176,
+        32
+      ],
+      "id": "fb7ea192-fe41-4577-be15-4ae3cb4b92cb",
+      "name": "No Reply?"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "msiDisjVc3R2qgFY",
+          "mode": "list",
+          "cachedResultName": "members",
+          "cachedResultUrl": "/projects/EXnAmFVDRxl4nNTP/datatables/msiDisjVc3R2qgFY"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "familyId",
+              "keyValue": "={{ $('Find Parent').first().json.familyId }}"
+            },
+            {
+              "keyName": "role",
+              "keyValue": "contact"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2656,
+        -176
+      ],
+      "id": "ac493edf-78dd-4038-9faa-c19d45123a2b",
+      "name": "Find Contact"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "=Valid8: {{ $('Find Parent').first().json.name }} ko {{ $('Find Child').first().json.name }} ke baare mein ek darane wali call aayi hai, aur {{ $('Find Child').first().json.name }} se abhi sampark nahi ho pa raha. Agar aap {{ $('Find Child').first().json.name }} ke saath ho ya use abhi call kar sakte ho, toh please check karke {{ $('Find Parent').first().json.name }} ko batao.",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "✅ Haan, safe hai",
+                    "additionalFields": {
+                      "callback_data": "=csafe:{{ $('Find Child').first().json.name }}"
+                    }
+                  },
+                  {
+                    "text": "❌ Sampark nahi hua",
+                    "additionalFields": {
+                      "callback_data": "=cno:{{ $('Find Child').first().json.name }}"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2848,
+        -176
+      ],
+      "id": "264b2706-2f10-4050-b8aa-d3b9f2e59e2c",
+      "name": "Ask Contact",
+      "webhookId": "a6bdc840-f2c8-403e-b457-9d546eb71150",
+      "credentials": {
+        "telegramApi": {
+          "id": "a1mtXsyEnkoT7FdZ",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "762db5e5-6fd4-4514-949a-522486992547",
+              "leftValue": "={{ $('Find Responder').first().json.role }}",
+              "rightValue": "contact",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1264,
+        -160
+      ],
+      "id": "e38bf5e7-ed85-4009-9e59-41e385849355",
+      "name": "From Contact?"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Family Parent').first().json.chatId }}",
+        "text": "={{ $('Telegram Trigger').first().json.callback_query.data.startsWith('csafe') ? '✅ VALID8: ' + $('Find Responder').first().json.name + ' ne bataya ki ' + $('Telegram Trigger').first().json.callback_query.data.split(':')[1] + ' SAFE hai. Ye ek trusted contact ka jawab hai, bacche ka apna PIN nahi. Phir bhi paise mat bhejo aur bacche ko seedha call karke confirm karo.' : '⚠️ VALID8: ' + $('Find Responder').first().json.name + ' bhi ' + $('Telegram Trigger').first().json.callback_query.data.split(':')[1] + ' se sampark nahi kar paaya. PAISE MAT BHEJO. Turant 112 pe call karo.' }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1488,
+        -304
+      ],
+      "id": "831e35e4-b476-4c9d-94f5-88da413dc642",
+      "name": "Tell Parent Contact",
+      "webhookId": "b63ea6f7-68a6-4743-805f-51b022620f24",
+      "credentials": {
+        "telegramApi": {
+          "id": "a1mtXsyEnkoT7FdZ",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "12Az214sZTV1QYv0",
+          "mode": "list",
+          "cachedResultName": "cases",
+          "cachedResultUrl": "/projects/EXnAmFVDRxl4nNTP/datatables/12Az214sZTV1QYv0"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "familyId",
+              "keyValue": "={{ $('Family Parent').first().json.familyId }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "={{ $('Telegram Trigger').first().json.callback_query.data.startsWith('csafe') ? 'contact_safe' : 'contact_no' }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "familyId",
+              "displayName": "familyId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "startedAt",
+              "displayName": "startedAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "attempts",
+              "displayName": "attempts",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "replied",
+              "displayName": "replied",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1680,
+        -416
+      ],
+      "id": "74d055a4-e089-427d-8a89-9bc407db8018",
+      "name": "Close Contact"
+    },
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        3072,
+        -176
+      ],
+      "id": "51321b7f-42fb-4f4b-9918-6f75456b11fd",
+      "name": "Wait Again",
+      "webhookId": "72c5a72c-2c5b-40d5-90e1-d879a24d1a15"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "12Az214sZTV1QYv0",
+          "mode": "list",
+          "cachedResultName": "cases",
+          "cachedResultUrl": "/projects/EXnAmFVDRxl4nNTP/datatables/12Az214sZTV1QYv0"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "familyId",
+              "keyValue": "={{ $('Find Parent').first().json.familyId }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        3328,
+        -176
+      ],
+      "id": "c4f328c8-4461-453d-bdb8-ccf217ecd35e",
+      "name": "Check Reply Again",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "7421b0e5-ff54-4046-bda3-09e0e31285b7",
+              "leftValue": "={{ $json.replied }}",
+              "rightValue": "no",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        3536,
+        -176
+      ],
+      "id": "46c1965a-fb2f-45ad-a2e2-3ad07e504728",
+      "name": "Still No Reply?"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Find Parent').first().json.chatId }}",
+        "text": "=⚠️ VALID8: UNCONFIRMED. {{ $('Find Child').first().json.name }} aur trusted contact ko poocha gaya, par 60 second mein kisi ka jawab nahi aaya. Ye na scam sabit hota hai, na sach. Isliye caller ke kehne par abhi paise mat bhejo. Turant 112 pe call karke police ko batao. {{ $('Find Child').first().json.name }} ko seedha call karne ki koshish bhi karo.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        3824,
+        -368
+      ],
+      "id": "a7ed18fc-1dae-4e1d-883b-153e09ae7181",
+      "name": "Tell Parent Unconfirmed",
+      "webhookId": "70d138c4-e4c1-46b1-a92f-6f1e283be5b5",
+      "credentials": {
+        "telegramApi": {
+          "id": "a1mtXsyEnkoT7FdZ",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "12Az214sZTV1QYv0",
+          "mode": "list",
+          "cachedResultName": "cases",
+          "cachedResultUrl": "/projects/EXnAmFVDRxl4nNTP/datatables/12Az214sZTV1QYv0"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "familyId",
+              "keyValue": "={{ $('Find Parent').first().json.familyId }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "no_response"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "familyId",
+              "displayName": "familyId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "startedAt",
+              "displayName": "startedAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "attempts",
+              "displayName": "attempts",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "replied",
+              "displayName": "replied",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        4064,
+        -368
+      ],
+      "id": "2034414c-a3ed-41a3-94b8-5aead0815f41",
+      "name": "Close Unconfirmed"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Find Parent').first().json.chatId }}",
+        "text": "=⏳ VALID8: {{ $('Find Child').first().json.name }} ne 30 second mein jawab nahi diya. Ab trusted contacts se pooch rahe hain. Jawab 30 second mein aayega. Tab tak caller ke kehne par paise mat bhejo.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2448,
+        -48
+      ],
+      "id": "efcb9a7b-c5c9-4ebb-ac07-74aa1d7ae3c4",
+      "name": "Tell Parent Asking Contacts",
+      "webhookId": "5db09ab4-d38a-4c25-a3f5-d415f2675cbd",
+      "credentials": {
+        "telegramApi": {
+          "id": "a1mtXsyEnkoT7FdZ",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "deleteMessage",
+        "chatId": "={{ $('Telegram Trigger').first().json.message.chat.id }}",
+        "messageId": "={{ $('Telegram Trigger').first().json.message.message_id }}"
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        672,
+        208
+      ],
+      "id": "38b15da0-2c11-453a-bf0d-2c4faafedb3e",
+      "name": "Delete a chat message",
+      "webhookId": "f34dac94-9a2f-4258-b0c0-86a227cf30cf",
+      "credentials": {
+        "telegramApi": {
+          "id": "a1mtXsyEnkoT7FdZ",
+          "name": "Telegram account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "12Az214sZTV1QYv0",
+          "mode": "list",
+          "cachedResultName": "cases",
+          "cachedResultUrl": "/projects/EXnAmFVDRxl4nNTP/datatables/12Az214sZTV1QYv0"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "familyId",
+              "keyValue": "={{ $('Find Responder').first().json.familyId }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        880,
+        -544
+      ],
+      "id": "cef05865-d592-4769-a73c-cd3388f5ab4a",
+      "name": "Get Case Btn",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "96850ff0-8f16-47f7-b484-6f5b0affbcf6",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "open",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1088,
+        -416
+      ],
+      "id": "ba0a5347-9440-4070-b5c1-4b46af9c687c",
+      "name": "Case Open Btn?"
+    },
+    {
+      "parameters": {
+        "amount": 45
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2192,
+        -400
+      ],
+      "id": "99a9c98f-0644-4a7a-815e-60d6bd3d78bf",
+      "name": "Wait PIN",
+      "webhookId": "3e625ff9-8eca-4d3e-839d-c701603f4d80"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "12Az214sZTV1QYv0",
+          "mode": "list",
+          "cachedResultName": "cases",
+          "cachedResultUrl": "/projects/EXnAmFVDRxl4nNTP/datatables/12Az214sZTV1QYv0"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "familyId",
+              "keyValue": "={{ $('Find Responder').first().json.familyId }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2368,
+        -400
+      ],
+      "id": "2ac6ace6-a870-49e4-aa23-193b76a47c66",
+      "name": "Get Case PIN",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "e12bbddc-c13a-46be-b165-7243e2235293",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "open",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2560,
+        -400
+      ],
+      "id": "57887e65-e5c5-43a4-8ce5-84fafc1f8359",
+      "name": "PIN Pending?"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Family Parent').first().json.chatId }}",
+        "text": "=⚠️ VALID8: UNCONFIRMED. {{ $('Find Responder').first().json.name }} ne ✅ dabaya, par 45 second mein sahi PIN nahi aaya. Isse safe confirm nahi hota. Caller ke kehne par abhi paise mat bhejo. Turant 112 pe call karke police ko batao.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2784,
+        -528
+      ],
+      "id": "1d350ca6-d05b-4c00-8c00-274aa6d1959e",
+      "name": "Tell Parent PIN Timeout",
+      "webhookId": "cb6de9a3-d3d4-4404-a868-3f9d6ce542fd",
+      "credentials": {
+        "telegramApi": {
+          "id": "a1mtXsyEnkoT7FdZ",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "12Az214sZTV1QYv0",
+          "mode": "list",
+          "cachedResultName": "cases",
+          "cachedResultUrl": "/projects/EXnAmFVDRxl4nNTP/datatables/12Az214sZTV1QYv0"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "familyId",
+              "keyValue": "={{ $('Family Parent').first().json.familyId }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "pin_timeout"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "familyId",
+              "displayName": "familyId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "startedAt",
+              "displayName": "startedAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "attempts",
+              "displayName": "attempts",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "replied",
+              "displayName": "replied",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        3008,
+        -528
+      ],
+      "id": "2e61f5db-17e7-4f9c-874a-96a4d511faf0",
+      "name": "Close PIN Timeout"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Kya Aaya?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Kya Aaya?": {
+      "main": [
+        [
+          {
+            "node": "Answer Button",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Find Responder",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [],
+        [
+          {
+            "node": "Alarm?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Alarm?": {
+      "main": [
+        [
+          {
+            "node": "Find Parent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Is PIN?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Parent": {
+      "main": [
+        [
+          {
+            "node": "Find Child",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Child": {
+      "main": [
+        [
+          {
+            "node": "Ask Child",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Responder": {
+      "main": [
+        [
+          {
+            "node": "Family Parent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Family Parent": {
+      "main": [
+        [
+          {
+            "node": "Get Case Btn",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Safe?": {
+      "main": [
+        [
+          {
+            "node": "Ask PIN",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Tell Parent Help",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is PIN?": {
+      "main": [
+        [
+          {
+            "node": "Delete a chat message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Menu",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PIN Sender": {
+      "main": [
+        [
+          {
+            "node": "PIN Parent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PIN Parent": {
+      "main": [
+        [
+          {
+            "node": "Get Case",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PIN Correct?": {
+      "main": [
+        [
+          {
+            "node": "Tell Parent Verified",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Count Wrong PIN",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ask Child": {
+      "main": [
+        [
+          {
+            "node": "Open Case",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Case": {
+      "main": [
+        [
+          {
+            "node": "Case Open?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Case Open?": {
+      "main": [
+        [
+          {
+            "node": "PIN Correct?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tell Parent Verified": {
+      "main": [
+        [
+          {
+            "node": "Close Safe",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tell Parent Help": {
+      "main": [
+        [
+          {
+            "node": "Close Help",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Count Wrong PIN": {
+      "main": [
+        [
+          {
+            "node": "Tell Parent PIN",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Replied": {
+      "main": [
+        [
+          {
+            "node": "From Contact?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Open Case": {
+      "main": [
+        [
+          {
+            "node": "After Time Interval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "After Time Interval": {
+      "main": [
+        [
+          {
+            "node": "Check Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Reply": {
+      "main": [
+        [
+          {
+            "node": "No Reply?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No Reply?": {
+      "main": [
+        [
+          {
+            "node": "Tell Parent Asking Contacts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Contact": {
+      "main": [
+        [
+          {
+            "node": "Ask Contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "From Contact?": {
+      "main": [
+        [
+          {
+            "node": "Tell Parent Contact",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Safe?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tell Parent Contact": {
+      "main": [
+        [
+          {
+            "node": "Close Contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ask Contact": {
+      "main": [
+        [
+          {
+            "node": "Wait Again",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait Again": {
+      "main": [
+        [
+          {
+            "node": "Check Reply Again",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Reply Again": {
+      "main": [
+        [
+          {
+            "node": "Still No Reply?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Still No Reply?": {
+      "main": [
+        [
+          {
+            "node": "Tell Parent Unconfirmed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tell Parent Unconfirmed": {
+      "main": [
+        [
+          {
+            "node": "Close Unconfirmed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tell Parent Asking Contacts": {
+      "main": [
+        [
+          {
+            "node": "Find Contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete a chat message": {
+      "main": [
+        [
+          {
+            "node": "PIN Sender",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Case Btn": {
+      "main": [
+        [
+          {
+            "node": "Case Open Btn?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Case Open Btn?": {
+      "main": [
+        [
+          {
+            "node": "Mark Replied",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ask PIN": {
+      "main": [
+        [
+          {
+            "node": "Wait PIN",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait PIN": {
+      "main": [
+        [
+          {
+            "node": "Get Case PIN",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Case PIN": {
+      "main": [
+        [
+          {
+            "node": "PIN Pending?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PIN Pending?": {
+      "main": [
+        [
+          {
+            "node": "Tell Parent PIN Timeout",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tell Parent PIN Timeout": {
+      "main": [
+        [
+          {
+            "node": "Close PIN Timeout",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "6324596a-0d11-4db5-b2bc-2711e815f54c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "51adbcf2d8c998ade450d95d68e61fac99c1636b9e4911fa2a71cf0810a4717d"
+  },
+  "nodeGroups": [],
+  "id": "43ff5kZoRXWn16tT",
+  "tags": []
+}
