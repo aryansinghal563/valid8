@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Valid8 Evidence Recorder</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #fcecec; color: #2b2b2b; margin: 0; padding: 20px; }
+  .card { max-width: 640px; margin: 0 auto; background: #fff; border: 2px solid #ce3232; border-radius: 12px; padding: 22px; }
+  h1 { color: #aa1a1a; margin: 0 0 4px; font-size: 24px; }
+  .sub { color: #777; margin: 0 0 16px; font-size: 14px; }
+  label { display: block; font-weight: bold; font-size: 13px; margin: 12px 0 4px; color: #aa1a1a; }
+  input[type=text] { width: 100%; box-sizing: border-box; padding: 8px 10px; font-size: 14px; border: 1px solid #ccc; border-radius: 6px; }
+  .box { border: 1px solid #f2d9d9; border-radius: 10px; padding: 14px; margin-top: 16px; }
+  .box h2 { font-size: 16px; margin: 0 0 10px; color: #aa1a1a; }
+  button { font-size: 15px; font-weight: bold; padding: 10px 18px; border: 0; border-radius: 8px; cursor: pointer; color: #fff; background: #aa1a1a; margin: 4px 6px 4px 0; }
+  button:disabled { background: #bbb; cursor: not-allowed; }
+  .dark { background: #3a3a3a; }
+  .send { background: #1e7a45; width: 100%; font-size: 17px; padding: 12px; margin-top: 16px; }
+  .timer { font-size: 22px; font-weight: bold; margin-left: 8px; vertical-align: middle; }
+  .meter { height: 12px; background: #f2d9d9; border-radius: 6px; margin: 12px 0 4px; overflow: hidden; }
+  .meter div { height: 100%; width: 0%; background: #aa1a1a; transition: width 0.08s; }
+  audio { width: 100%; margin-top: 10px; }
+  pre { background: #f6f6f6; border-left: 4px solid #3a3a3a; padding: 10px; font-size: 13px; white-space: pre-wrap; min-height: 60px; }
+  .note { font-size: 12px; color: #777; margin-top: 10px; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Valid8 Evidence Recorder</h1>
+  <p class="sub">After a suspicious call, send the recording to Valid8. You will get a report on Telegram.</p>
+
+  <label for="url">Valid8 webhook URL</label>
+  <input type="text" id="url" value="https://n8n.aryansinghal.dev/webhook/valid8-evidence">
+
+  <label for="familyId">Family ID</label>
+  <input type="text" id="familyId" value="fam1">
+
+  <div class="box">
+    <h2>Option A: Record the call (put it on speaker)</h2>
+    <button id="btnRec">Start recording</button>
+    <button id="btnStop" class="dark" disabled>Stop</button>
+    <span class="timer" id="timer">00:00</span>
+    <div class="meter"><div id="level"></div></div>
+  </div>
+
+  <div class="box">
+    <h2>Option B: Choose a recording file</h2>
+    <input type="file" id="file" accept="audio/*">
+  </div>
+
+  <div class="box">
+    <h2>Check before sending</h2>
+    <div id="chosen">Nothing selected yet.</div>
+    <audio id="player" controls></audio>
+  </div>
+
+  <button id="btnSend" class="send" disabled>Send to Valid8</button>
+
+  <pre id="log">Ready.</pre>
+  <p class="note">Only record calls you are part of. The recording is sent to your Valid8 server to create a report.</p>
+</div>
+
+<script>
+var stream = null;
+var recorder = null;
+var parts = [];
+var audioBlob = null;
+var audioName = '';
+var startTime = 0;
+var timerId = null;
+var audioCtx = null;
+var meterId = null;
+
+var el = function (id) { return document.getElementById(id); };
+
+function log(text) { el('log').textContent += '\n' + text; }
+
+function setAudio(blob, name) {
+  audioBlob = blob;
+  audioName = name;
+  el('player').src = URL.createObjectURL(blob);
+  el('chosen').textContent = name + ' (' + (blob.size / 1024).toFixed(0) + ' KB)';
+  el('btnSend').disabled = false;
+}
+
+function pickMime() {
+  var options = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg;codecs=opus'];
+  for (var i = 0; i < options.length; i++) {
+    if (window.MediaRecorder && MediaRecorder.isTypeSupported(options[i])) { return options[i]; }
+  }
+  return '';
+}
+
+function extFor(type) {
+  if (type.indexOf('mp4') >= 0) { return '.m4a'; }
+  if (type.indexOf('ogg') >= 0) { return '.ogg'; }
+  return '.webm';
+}
+
+function pad(n) { return (n < 10 ? '0' : '') + n; }
+
+function startMeter() {
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  var src = audioCtx.createMediaStreamSource(stream);
+  var analyser = audioCtx.createAnalyser();
+  analyser.fftSize = 256;
+  src.connect(analyser);
+  var data = new Uint8Array(analyser.frequencyBinCount);
+  meterId = setInterval(function () {
+    analyser.getByteTimeDomainData(data);
+    var peak = 0;
+    for (var i = 0; i < data.length; i++) {
+      var v = Math.abs(data[i] - 128);
+      if (v > peak) { peak = v; }
+    }
+    el('level').style.width = Math.min(100, peak * 1.6) + '%';
+  }, 80);
+}
+
+function stopMeter() {
+  if (meterId) { clearInterval(meterId); meterId = null; }
+  if (audioCtx) { audioCtx.close(); audioCtx = null; }
+  el('level').style.width = '0%';
+}
+
+el('btnRec').onclick = async function () {
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  } catch (err) {
+    log('Microphone error: ' + err.name + ' - ' + err.message);
+    return;
+  }
+  var mime = pickMime();
+  var opts = { audioBitsPerSecond: 32000 };
+  if (mime) { opts.mimeType = mime; }
+  recorder = new MediaRecorder(stream, opts);
+  parts = [];
+  recorder.ondataavailable = function (e) { if (e.data && e.data.size > 0) { parts.push(e.data); } };
+  recorder.onstop = function () {
+    var blob = new Blob(parts, { type: recorder.mimeType });
+    setAudio(blob, 'call-recording' + extFor(recorder.mimeType));
+    log('Recording ready: ' + (blob.size / 1024).toFixed(0) + ' KB');
+  };
+  recorder.start(1000);
+  startTime = Date.now();
+  timerId = setInterval(function () {
+    var s = Math.floor((Date.now() - startTime) / 1000);
+    el('timer').textContent = pad(Math.floor(s / 60)) + ':' + pad(s % 60);
+  }, 500);
+  startMeter();
+  el('btnRec').disabled = true;
+  el('btnStop').disabled = false;
+  el('btnSend').disabled = true;
+  log('Recording...');
+};
+
+el('btnStop').onclick = function () {
+  if (recorder && recorder.state !== 'inactive') { recorder.stop(); }
+  if (stream) { stream.getTracks().forEach(function (t) { t.stop(); }); }
+  clearInterval(timerId);
+  stopMeter();
+  el('btnRec').disabled = false;
+  el('btnStop').disabled = true;
+};
+
+el('file').onchange = function () {
+  var f = el('file').files[0];
+  if (!f) { return; }
+  if (f.size > 24 * 1024 * 1024) {
+    log('File is too big (max 24 MB).');
+    return;
+  }
+  setAudio(f, f.name);
+  log('File selected: ' + f.name);
+};
+
+el('btnSend').onclick = function () {
+  if (!audioBlob) { return; }
+  var fam = el('familyId').value.trim();
+  if (!fam) { log('Please enter the Family ID.'); return; }
+  var fd = new FormData();
+  fd.append('audio', audioBlob, audioName);
+  var url = el('url').value.trim() + '?familyId=' + encodeURIComponent(fam);
+  el('btnSend').disabled = true;
+  log('Sending ' + audioName + ' ...');
+  fetch(url, { method: 'POST', body: fd })
+    .then(function (r) {
+      if (r.ok) { log('Sent. HTTP ' + r.status + '. The report will arrive on Telegram in about a minute.'); }
+      else { log('Server error: HTTP ' + r.status); el('btnSend').disabled = false; }
+    })
+    .catch(function (err) {
+      log('Not sent: ' + err.message);
+      el('btnSend').disabled = false;
+    });
+};
+</script>
+</body>
+</html>
