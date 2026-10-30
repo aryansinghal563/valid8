@@ -803,9 +803,19 @@
                 "operation": "equals",
                 "name": "filter.operator.equals"
               }
+            },
+            {
+              "id": "b48b2bc5-964d-44e9-9ead-0fbbd11d539a",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "unconfirmed",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
             }
           ],
-          "combinator": "and"
+          "combinator": "or"
         },
         "options": {}
       },
@@ -1584,7 +1594,7 @@
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
-            "status": "no_response"
+            "status": "unconfirmed"
           },
           "matchingColumns": [],
           "schema": [
@@ -1749,9 +1759,19 @@
                 "operation": "equals",
                 "name": "filter.operator.equals"
               }
+            },
+            {
+              "id": "798a8ffe-f90f-4b87-98bc-289be89c0e1c",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "unconfirmed",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
             }
           ],
-          "combinator": "and"
+          "combinator": "or"
         },
         "options": {}
       },
@@ -1888,7 +1908,7 @@
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
-            "status": "pin_timeout"
+            "status": "unconfirmed"
           },
           "matchingColumns": [],
           "schema": [
@@ -2454,7 +2474,7 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "6324596a-0d11-4db5-b2bc-2711e815f54c",
+  "versionId": "1c850b1c-7e63-4be0-ba71-5e2f646d5664",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "51adbcf2d8c998ade450d95d68e61fac99c1636b9e4911fa2a71cf0810a4717d"

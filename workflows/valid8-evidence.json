@@ -1,0 +1,357 @@
+{
+  "name": "Valid8 - Evidence",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "valid8-evidence",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "b72d1bc6-de05-4787-8109-482ffa0fe257",
+      "name": "Webhook",
+      "webhookId": "78902bd0-a4db-428a-a38c-4ce04e48a75a"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/audio/transcriptions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "audio"
+            },
+            {
+              "name": "model",
+              "value": "whisper-large-v3"
+            },
+            {
+              "name": "language",
+              "value": "hi"
+            },
+            {
+              "name": "prompt",
+              "value": "UPI ID jaise saurav@ybl, rahul@paytm, 9876543210@okaxis. Paise: 50000 rupaye. Phone number: 9876543210. Police, kidnap, accident. Phone call in Hinglish. May contain UPI IDs like name@ybl or name@okaxis, rupee amounts and phone numbers. Write threats in English exactly as the caller meant them. \"Police ko mat batana\" means the caller forbids contacting the police; it is not a threat to call the police. Never invent details."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        240,
+        0
+      ],
+      "id": "21f79ee7-1c66-48ac-b1e2-9722c4d56c48",
+      "name": "Groq Whisper",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "83g6BxzY6Uol7ruU",
+          "name": "Groq"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "423fce3a-b24e-43fd-b91c-783b97abac61",
+              "name": "ai",
+              "value": "={{ JSON.parse($json.choices[0].message.content) }}",
+              "type": "object"
+            },
+            {
+              "id": "85692aba-a3a6-4aa5-96c4-e480a87ef80e",
+              "name": "transcript",
+              "value": "={{ $('Groq Whisper').first().json.text }}",
+              "type": "string"
+            },
+            {
+              "id": "8508fcb2-c26c-43ba-88fa-2569484f4423",
+              "name": "familyId",
+              "value": "={{ $('Webhook').first().json.query.familyId }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        688,
+        0
+      ],
+      "id": "dd2fe559-8bca-46fa-b0f3-0b5a6363744e",
+      "name": "Clean Evidence"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "msiDisjVc3R2qgFY",
+          "mode": "list",
+          "cachedResultName": "members",
+          "cachedResultUrl": "/projects/EXnAmFVDRxl4nNTP/datatables/msiDisjVc3R2qgFY"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "familyId",
+              "keyValue": "={{ $json.familyId }}"
+            },
+            {
+              "keyName": "role",
+              "keyValue": "parent"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        912,
+        0
+      ],
+      "id": "a50b44a6-b162-43e8-a934-628ab656104f",
+      "name": "Find Parent"
+    },
+    {
+      "parameters": {
+        "jsCode": "const e = $('Clean Evidence').first().json;\nconst ai = e.ai || {};\nconst parent = $input.first().json;\n\nfunction esc(s) {\n  return String(s == null ? '' : s)\n    .replace(/&/g, '&amp;').replace(/</g, '&lt;')\n    .replace(/>/g, '&gt;').replace(/\"/g, '&quot;');\n}\nfunction onlyDigits(s) {\n  return String(s).split('').filter(function (c) { return c >= '0' && c <= '9'; }).join('');\n}\nfunction list(a) {\n  return (a && a.length) ? a.map(esc).join('<br>') : 'Not mentioned';\n}\n\nconst phones = (ai.phone_numbers || []).map(function (p) {\n  return onlyDigits(p).length === 10 ? p : p + ' (CHECK: not a 10-digit number, may be misheard)';\n});\nconst amount = ai.amount_inr ? 'Rs ' + Number(ai.amount_inr).toLocaleString('en-IN') : 'Not mentioned';\nconst when = DateTime.now().setZone('Asia/Kolkata').toFormat('dd LLL yyyy, hh:mm a');\n\nconst css = [\n  'body{font-family:Arial,sans-serif;color:#2b2b2b;margin:36px;}',\n  'h1{color:#AA1A1A;margin:0;font-size:26px;}',\n  '.sub{color:#777;margin:4px 0 20px;}',\n  '.badge{display:inline-block;padding:7px 16px;border-radius:6px;color:#fff;font-weight:bold;background:#AA1A1A;}',\n  'table{border-collapse:collapse;width:100%;margin-top:16px;}',\n  'td{border:1px solid #ddd;padding:9px;vertical-align:top;}',\n  'td.k{width:30%;background:#fcecec;font-weight:bold;}',\n  '.quote{background:#f6f6f6;border-left:4px solid #AA1A1A;padding:12px;margin-top:6px;}',\n  '.note{margin-top:24px;font-size:12px;color:#666;border-top:1px solid #ddd;padding-top:10px;}'\n].join('');\n\nconst html = [\n  '<!DOCTYPE html><html><head><meta charset=\"utf-8\"><style>', css, '</style></head><body>',\n  '<h1>Valid8 Evidence Report</h1>',\n  '<div class=\"sub\">Generated ', esc(when), ' (IST) for ', esc(parent.name || 'parent'), '</div>',\n  '<div class=\"badge\">Suspected scam: ', esc(ai.scam_type || 'unknown'), '</div>',\n  '<table>',\n  '<tr><td class=\"k\">Person named by caller</td><td>', esc(ai.victim_named || 'Not mentioned'), '</td></tr>',\n  '<tr><td class=\"k\">Amount demanded</td><td>', esc(amount), '</td></tr>',\n  '<tr><td class=\"k\">Payment method</td><td>', esc(ai.payment_method || 'Not mentioned'), '</td></tr>',\n  '<tr><td class=\"k\">UPI IDs</td><td>', list(ai.upi_ids), '</td></tr>',\n  '<tr><td class=\"k\">Phone numbers</td><td>', list(phones), '</td></tr>',\n  '<tr><td class=\"k\">Deadline given</td><td>', esc(ai.deadline || 'Not mentioned'), '</td></tr>',\n  '<tr><td class=\"k\">Threats</td><td>', list(ai.threats), '</td></tr>',\n  '<tr><td class=\"k\">Uncertain details</td><td>', list(ai.uncertain), '</td></tr>',\n  '<tr><td class=\"k\">Summary</td><td>', esc(ai.summary || ''), '</td></tr>',\n  '</table>',\n  '<h3>Transcript (automatic, may contain errors)</h3>',\n  '<div class=\"quote\">', esc(e.transcript), '</div>',\n  '<h3>What to do next</h3><ol>',\n  '<li>Do not send money. Keep the original recording safe.</li>',\n  '<li>If money was sent: call 1930 immediately or file at cybercrime.gov.in, and inform your bank with the UPI ID above.</li>',\n  '<li>If no money was sent: report the number on Sanchar Saathi (Chakshu).</li>',\n  '</ol>',\n  '<div class=\"note\">This report was generated automatically from a call recording. Details were extracted by AI and may contain errors. Please verify every number and UPI ID against the recording before filing.</div>',\n  '</body></html>'\n].join('');\n\nreturn [{ json: { reportHtml: html, familyId: e.familyId, parentChatId: String(parent.chatId || '') } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1136,
+        0
+      ],
+      "id": "9620b6a1-b82c-45a0-be17-9fd1f6d574af",
+      "name": "Build Evidence HTML"
+    },
+    {
+      "parameters": {
+        "operation": "toText",
+        "sourceProperty": "reportHtml",
+        "options": {
+          "fileName": "index.html"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1312,
+        0
+      ],
+      "id": "d4374ec2-fabf-47c4-bb89-832663607565",
+      "name": "HTML File"
+    },
+    {
+      "parameters": {
+        "operation": "sendDocument",
+        "chatId": "={{ $('Build Evidence HTML').first().json.parentChatId }}",
+        "binaryData": true,
+        "binaryPropertyName": "report",
+        "additionalFields": {
+          "caption": "Valid8 evidence report. Please verify the details against the recording before filing on 1930 or Chakshu.",
+          "fileName": "valid8-evidence.pdf"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1760,
+        0
+      ],
+      "id": "11662db5-c3c0-4f3c-b64a-e734bb477c58",
+      "name": "Send a document",
+      "webhookId": "7a152fba-11db-4a76-8a46-fc2711fbb118",
+      "credentials": {
+        "telegramApi": {
+          "id": "a1mtXsyEnkoT7FdZ",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://gotenberg:3000/forms/chromium/convert/html",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "files",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "report"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1536,
+        0
+      ],
+      "id": "e2080d27-da42-453f-9a0e-c730e8d8f2ff",
+      "name": "Make PDF"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"model\": \"openai/gpt-oss-120b\", \"temperature\": 0, \"reasoning_effort\": \"low\", \"include_reasoning\": false, \"response_format\": { \"type\": \"json_object\" }, \"messages\": [ { \"role\": \"system\", \"content\": \"You extract evidence from a transcript of a suspected Indian scam call. The transcript may be Hindi in Devanagari or Hinglish, and speech-to-text may garble words: rebuild UPI IDs (for example saurav help at ybl means saurav.help@ybl), numbers spoken in Hindi, and amounts. Never invent anything not supported by the transcript. Reply ONLY with JSON: {\\\"scam_type\\\": \\\"kidnap|arrest|accident|hospital|other\\\", \\\"victim_named\\\": string or null, \\\"amount_inr\\\": number or null, \\\"payment_method\\\": string or null, \\\"upi_ids\\\": [strings], \\\"phone_numbers\\\": [strings], \\\"deadline\\\": string or null, \\\"threats\\\": [short English strings], \\\"summary\\\": \\\"two short lines in English\\\", \\\"uncertain\\\": [fields that may be garbled]}\" }, { \"role\": \"user\", \"content\": {{ JSON.stringify($json.text) }} } ] }",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        464,
+        0
+      ],
+      "id": "e44d67fd-fb51-4de1-82a8-603495ffae01",
+      "name": "AI Extract",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "83g6BxzY6Uol7ruU",
+          "name": "Groq"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Groq Whisper",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Whisper": {
+      "main": [
+        [
+          {
+            "node": "AI Extract",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean Evidence": {
+      "main": [
+        [
+          {
+            "node": "Find Parent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Parent": {
+      "main": [
+        [
+          {
+            "node": "Build Evidence HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Evidence HTML": {
+      "main": [
+        [
+          {
+            "node": "HTML File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML File": {
+      "main": [
+        [
+          {
+            "node": "Make PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Make PDF": {
+      "main": [
+        [
+          {
+            "node": "Send a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Extract": {
+      "main": [
+        [
+          {
+            "node": "Clean Evidence",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "1396febb-0fcc-4cb6-9db5-ed772f6d0925",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "51adbcf2d8c998ade450d95d68e61fac99c1636b9e4911fa2a71cf0810a4717d"
+  },
+  "nodeGroups": [],
+  "id": "V66XrveLlkCQIHpx",
+  "tags": []
+}
