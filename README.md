@@ -166,6 +166,7 @@ The screenshot shows table names only. The schemas below document the fields use
 | [workflows/valid8-bot-router.json](workflows/valid8-bot-router.json) | Importable live verification workflow |
 | [workflows/valid8-evidence.json](workflows/valid8-evidence.json) | Importable post-call evidence workflow |
 | [valid8-evidence.html](valid8-evidence.html) | Evidence recorder and upload page |
+| [index.html](index.html) | GitHub Pages entry page that redirects the site root to the evidence recorder |
 | [docs/screenshots/](docs/screenshots/) | Prototype screenshots and sample report preview |
 | [valid8-example-evidence.pdf](valid8-example-evidence.pdf) | Example evidence report from a test recording |
 | [Valid8-Hermes-ppt.pdf](Valid8-Hermes-ppt.pdf) | Team Hermes presentation |
